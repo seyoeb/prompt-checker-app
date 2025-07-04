@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import openai
 from openai import OpenAI
 
 # API 키 불러오기
@@ -24,9 +23,8 @@ CHECKLIST = {
 def evaluate_prompt(prompt):
     criteria_prompt = f"""
 다음은 학생이 작성한 AI 프롬프트입니다:
-"""
 {prompt}
-"""
+
 이 프롬프트를 아래의 10가지 항목에 따라 0(아니다)/1(그렇다)로 평가해주세요.
 
 {', '.join(CHECKLIST.keys())}
