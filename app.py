@@ -1,11 +1,12 @@
 import streamlit as st
 import pandas as pd
 import openai
+from openai import OpenAI
 
-# Set your OpenAI API key here or via Streamlit Secrets
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+# API 키 불러오기
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-# -------------------- 체크리스트 항목 정의 -------------------- #
+# 체크리스트 항목 정의
 CHECKLIST = {
     "역할": "프롬프트에 역할(예: 너는 선생님이다)이 명시되어 있는가?",
     "대상": "프롬프트에 대상(예: 중학생에게 설명해줘)이 명시되어 있는가?",
@@ -19,13 +20,13 @@ CHECKLIST = {
     "프롬프트 테크닉": "few-shot, chain-of-thought 등의 고급 기법이 사용되었는가?",
 }
 
-# -------------------- 평가 함수 -------------------- #
+# 평가 함수 정의
 def evaluate_prompt(prompt):
     criteria_prompt = f"""
 다음은 학생이 작성한 AI 프롬프트입니다:
-
+"""
 {prompt}
-
+"""
 이 프롬프트를 아래의 10가지 항목에 따라 0(아니다)/1(그렇다)로 평가해주세요.
 
 {', '.join(CHECKLIST.keys())}
@@ -34,12 +35,12 @@ def evaluate_prompt(prompt):
 {{
   "역할": 0 또는 1,
   "대상": 0 또는 1,
-  ...
+  ... 생략 ...
 }}
 그리고 마지막에 학생에게 줄 1~2문장 피드백을 써주세요.
 """
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
             {"role": "system", "content": "너는 교사처럼 프롬프트를 평가하는 역할을 맡았어."},
@@ -47,9 +48,10 @@ def evaluate_prompt(prompt):
         ],
         temperature=0
     )
-    return response.choices[0].message['content']
 
-# -------------------- Streamlit UI -------------------- #
+    return response.choices[0].message.content
+
+# Streamlit UI
 st.title("🧠 프롬프트 자동 채점 WebApp")
 st.markdown("""
 **설명**: 아래에서 학생들의 프롬프트 Excel 파일을 업로드하면, 각 프롬프트를 체크리스트 기반으로 자동 평가합니다.  
