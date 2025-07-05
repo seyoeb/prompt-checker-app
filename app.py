@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import time
 from openai import OpenAI
-import openai.error
+from openai import RateLimitError
 
 # API 키 불러오기
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
